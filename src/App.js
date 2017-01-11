@@ -4,8 +4,8 @@ import Sidebar from 'react-sidebar';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import { List } from 'react-virtualized';
 import logo from './logo.svg';
+import Infinite from 'react-infinite';
 import './App.css';
 injectTapEventPlugin();
 
@@ -22,16 +22,15 @@ function MessageItem(props){
 class MessageList extends React.Component {
   render() {
     return (
-      <List
-          height={200}
-          rowHeight={50}
-          rowCount={messages.length}
-          rowRenderer={MessageItem}
+      <Infinite
+          containerHeight={200}
+          elementHeight={20}
+          displayBottomUpwards
       >
         {this.props.messages.map(message => (
             <MessageItem sender={message.sender} sentAt={message.sentAt} message={message.message} key={message.sentAt}/>
             ))}
-      </List>
+      </Infinite>
     );
   }
 }
