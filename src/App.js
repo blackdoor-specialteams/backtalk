@@ -7,6 +7,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import logo from './logo.svg';
 import Infinite from 'react-infinite';
 import './App.css';
+import {List, ListItem} from 'material-ui/List';
 injectTapEventPlugin();
 
 
@@ -33,6 +34,16 @@ class MessageList extends React.Component {
       </Infinite>
     );
   }
+}
+
+function SidebarContent(props) {
+    return
+      <List>
+        {this.props.chats.map(chat => 
+          <ListItem primaryText={chat.toString} />
+        )}
+      </List>
+    ;
 }
 
 const App = class MessageApp extends React.Component {
