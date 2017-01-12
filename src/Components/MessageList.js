@@ -5,7 +5,17 @@ import React from 'react';
 
 class MessageList extends React.Component {
     render() {
-        // TODO
+        return (
+            <Infinite
+                containerHeight={200}
+                elementHeight={20}
+                displayBottomUpwards
+            >
+                {this.props.messages.map(message => (
+                    <MessageItem sender={message.sender} sentAt={message.sentAt} message={message.message} key={message.sentAt}/>
+                ))}
+            </Infinite>
+        );
     }
 }
 
