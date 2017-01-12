@@ -2,6 +2,7 @@ require('../Layouts/App.css');
 require('../Layouts/index.css');
 
 import React from 'react';
+import MessageList from './MessageList';
 
 class MessageList extends React.Component {
     render() {
