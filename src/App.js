@@ -2,14 +2,50 @@ import React, { Component } from 'react';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 import Sidebar from 'react-sidebar';
 import RaisedButton from 'material-ui/RaisedButton';
+import Subheader from 'material-ui/Subheader';
 import TextField from 'material-ui/TextField';
+import FlatButton from 'material-ui/FlatButton';
+import Dialog from 'material-ui/Dialog';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import logo from './logo.svg';
 import Infinite from 'react-infinite';
 import './App.css';
 import {List, ListItem} from 'material-ui/List';
+import Divider from 'material-ui/Divider';
+
+import FloatingActionButton from 'material-ui/FloatingActionButton';
+import ContentAdd from 'material-ui/svg-icons/content/add';
 injectTapEventPlugin();
 
+class Room {
+    constructor(messages, name){
+        this.messages = messages;
+        this.name = name
+    }
+
+    displayName(){
+        name
+    }
+}
+
+class DirectChat {
+    constructor(messages, participants){
+        this.messages = messages;
+        this.participants = participants;
+    }
+
+    displayName(){
+        this.participants;
+    }
+}
+
+class Message {
+    constructor(sender, time, body){
+        this.sender = sender;
+        this.time = time;
+        this.body = body;
+    }
+}
 
 function MessageItem(props){
   return(
@@ -37,13 +73,94 @@ class MessageList extends React.Component {
 }
 
 function SidebarContent(props) {
-    return
+
+    return(
+   
       <List>
-        {this.props.chats.map(chat => 
-          <ListItem primaryText={chat.toString} />
+        <Subheader>rooms</Subheader>
+        {props.rooms.map(chat => 
+          <div>
+          <ListItem 
+            primaryText={chat.displayName()} 
+            secondaryText={
+              chat.messages[0] ?
+                chat.messages[0].body
+              : ""
+            }
+          />
+          <Divider />
+          </div>
+        )}
+        <Subheader>direct chats</Subheader>
+        {props.directChats.map(chat => 
+          <div>
+          <ListItem 
+            primaryText={chat.participants} 
+            secondaryText={
+              chat.messages[0] ?
+                chat.messages[0].body
+              : ""
+            }
+          />
+          <Divider />
+          </div>
         )}
       </List>
-    ;
+    );
+}
+
+class NewDirectChatDialog extends React.Component {
+  constructor(props){
+    super(props);
+    this.onNewDc = props.onNewDc;
+    this.state = { 
+      open : props.visible,
+      text : '' 
+    }
+  }
+
+  handleClose = () => {
+    this.setState({open: false});
+  };
+
+  handleUpdate = (e, val) => {
+    this.setState({text: val});
+  }
+
+  render(){
+    const actions = [
+      <FlatButton
+        label="Cancel"
+        primary={true}
+        onTouchTap={this.handleClose}
+      />,
+      <FlatButton
+        label="Submit"
+        primary={true}
+        keyboardFocused={true}
+        onTouchTap={() => {
+          this.onNewDc(this.state.text);
+          this.handleClose();
+        }}
+      />,
+    ];
+
+    return (
+      <Dialog 
+        title="New Direct Chat"
+        actions={actions}
+        open={this.state.open}
+        onRequestClose={this.handleClose}
+      >
+        Join Chat (just one other person for now)
+        <TextField
+              floatingLabelText="to"
+              value={this.state.text}
+              onChange={this.handleUpdate}
+        />
+      </ Dialog>
+    );
+  }
 }
 
 const App = class MessageApp extends React.Component {
@@ -55,10 +172,13 @@ const App = class MessageApp extends React.Component {
     //this.toggleSidebar = this.toggleSidebar.bind(this);
     //this.mediaQueryChanged = this.mediaQueryChanged.bind(this);
     this.state = {
-      messages: [], 
+      currentChat : new Room([], "newRoom"), 
       text: '', 
       sidebarOpen: false,
-      sidebarDocked: false
+      sidebarDocked: false,
+      rooms: [],
+      directChats: [],
+      newChatDialogVisible: false,
     };
     self = this;
   }
@@ -90,9 +210,18 @@ const App = class MessageApp extends React.Component {
     this.setState({text: newVal});
   }
 
-  render() {
-    var sidebarContent = <b className="sidebar">Sidebar content</b>;
+  newChat = (e) => {
+    var chats = this.state.directChats;
+    chats.unshift(new DirectChat([], [e]));
+    this.setState({directChats: chats});
+  }
 
+  showNewChatDialog = () => {
+    this.setState({newChatDialogVisible: true})
+  }
+
+  render() {
+    var sidebarContent = <SidebarContent className="sidebar" rooms={this.state.rooms} directChats={this.state.directChats}/>;
     var txtStyle = {
       width: '75%' // todo
     }
@@ -104,7 +233,7 @@ const App = class MessageApp extends React.Component {
                   open={this.state.sidebarOpen}
                   docked={this.state.sidebarDocked}
                   onSetOpen={this.onSetSidebarOpen}>
-            <MessageList messages={this.state.messages} />
+            
             <TextField
               hintText="Message"
               multiLine={true}
@@ -122,7 +251,16 @@ const App = class MessageApp extends React.Component {
               <button>Send</button>
             </form>
             <button onClick={this.toggleSidebar}>sidebar</button>
+
+            <FloatingActionButton onClick={this.showNewChatDialog}>
+              <ContentAdd />
+            </FloatingActionButton>
             
+            <NewDirectChatDialog 
+              visible={this.state.newChatDialogVisible}
+              onNewDc={this.newChat}
+            />
+
           </Sidebar>
         </MuiThemeProvider>
       </div>
