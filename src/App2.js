@@ -32,7 +32,7 @@ function Rooms(props){
 				<div>
 				<ListItem 
 					primaryText={e.name}
-					secondaryText={e.messages[-1] ? e.messages[-1].body : ""}
+					secondaryText={e.messages[e.messages.length -1] ? e.messages[e.messages.length -1].body : ""}
 				/>
 				<Divider/>
 				</div>
@@ -51,7 +51,7 @@ function DirectChats(props){
 				<div>
 				<ListItem 
 					primaryText={e.name}
-					secondaryText={e.messages[-1] ? e.messages[-1].body : ""}
+					secondaryText={e.messages[e.messages.length -1] ? e.messages[e.messages.length -1].body : ""}
 				/>
 				<Divider/>
 				</div>
@@ -83,11 +83,17 @@ function TopBar(props){
 }
 
 function MessageList(props){
+
+	function selfStyle(msg) {
+		return props.currentUser === msg.sender ?
+		{ 'text-align': 'right' } : {}
+	}
+
 	return (
 		<div>
 			{props.messages.map(msg => (
-				<div>
-					<dt>{msg.sender}</dt>
+				<div style={selfStyle(msg)}>
+					<dt>{msg.sender + " - " + msg.sentAt}</dt>
 					<dd>{msg.body}</dd>
 					<Divider/>
 				</div>
@@ -149,6 +155,7 @@ function MainPane(props){
 			/>
 			<div style={style}>
 				<MessageList
+					currentUser={props.currentUser}
 					messages={props.chat.messages}
 				/>
 				<SubmissionArea/>
@@ -176,27 +183,36 @@ function SideDrawer(props){
 }
 
 const App = class MessageApp extends React.Component {
+	constructor(props){
+		super(props)
+	}
+
 	render() {
 		var directChat = {
+					id: ["alice@evilcorp.com", "bob@chat.allsafe.net", "nfischer@nrktkt.tk"],
 					name: "alice, bob",
 					members: "alice@evilcorp.com, bob@chat.allsafe.net",
 					messages: [
 						{
 							sender: "alice@evilcorp.com",
-							body: "what should we do?"
+							body: "what should we do?",
+							sentAt: Date.parse("2017-01-22T16:21:13Z")
 						},
 						{
 							sender: "bob@chat.allsafe.net",
-							body: "Idk, hide?"
+							body: "Idk, hide?",
+							sentAt: Date.parse("2017-01-22T17:21:13Z")
 						},
 						{
 							sender: "me",
-							body: "I knew we shouldn't have taken that acid"
+							body: "I knew we shouldn't have taken that acid",
+							sentAt: Date.parse("2017-01-22T18:21:13Z")
 						}
 					]
 				};
 
 		var room = {
+					id: "blackdev#csubj.io",
 					name: "blackdev#csubj.io",
 					messages: [
 						{
@@ -211,13 +227,9 @@ const App = class MessageApp extends React.Component {
   
       contentStyle.marginLeft = 256;
     
-
-	  	const bgStyle = {
-			  "background-color": getMuiTheme(darkBaseTheme).canvasColor
-		  }
 		return (
 			<MuiThemeProvider muiTheme={getMuiTheme(darkBaseTheme)}>
-			<div style={bgStyle}>
+			<div>
 				<SideDrawer
 					directChats={[directChat]}
 					rooms={[room]}
@@ -226,6 +238,7 @@ const App = class MessageApp extends React.Component {
 				<div style={contentStyle}>
 				<MainPane 
 					chat={directChat}
+					currentUser="me"
 				/>
 				</div>
 			</div>			
@@ -235,4 +248,5 @@ const App = class MessageApp extends React.Component {
 }
 
 export default App;
+
 
